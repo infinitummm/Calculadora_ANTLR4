@@ -1,12 +1,12 @@
 # Calculadora con ANTLR 4 utilizando el Patrón Visitor
 
-Los integrantes: Dylan Torres - Juan Gomez - Javier Rosero
+Integrantes: Dylan Torres - Juan Gomez - Javier Rosero
 
 ---
 
 ## 1. Introducción y Fundamentos
 
-Este proyecto consiste en el diseño e implementación de una calculadora aritmética interactiva basada en el Capítulo 4 (*A Quick Tour*) del libro de referencia *The Definitive ANTLR 4 Reference* de Terence Parr.
+Este trabajo consiste en el diseño e implementación de una calculadora aritmética interactiva basada en el Capítulo 4 (*A Quick Tour*) del libro de referencia *The Definitive ANTLR 4 Reference* de Terence Parr.
 
 El objetivo principal es desacoplar la gramática del lenguaje de la lógica de evaluación. En lugar de incrustar acciones en código Java directamente dentro de las reglas gramaticales, ANTLR 4 genera un árbol sintáctico (Parse Tree) y proporciona el patrón de diseño **Visitor**, permitiendo recorrer el árbol y calcular los resultados de forma estructurada, modular y extensible.
 
@@ -21,7 +21,6 @@ Calculadora_ANTLR4/
 ├── LabeledExpr.g4              # Gramática de la calculadora con etiquetas en cada alternativa
 ├── EvalVisitor.java            # Implementación del Visitor en Java (evaluador aritmético y memoria)
 ├── Calc.java                   # Punto de entrada de la aplicación
-├── .gitignore                  # Exclusión de archivos compilados y código generado
 ├── README.md                   # Documentación técnica del proyecto
 └── pruebas/                    # Casos de prueba organizados por escenario
     ├── 01_aritmetica_basica.txt
