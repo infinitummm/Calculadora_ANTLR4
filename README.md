@@ -4,7 +4,7 @@ Integrantes: Dylan Torres - Juan Gomez - Javier Rosero
 
 ---
 
-## 1. Introducción y Fundamentos
+##  Introducción y Fundamentos
 
 Este trabajo consiste en el diseño e implementación de una calculadora aritmética interactiva basada en el Capítulo 4 (*A Quick Tour*) del libro de referencia *The Definitive ANTLR 4 Reference* de Terence Parr.
 
@@ -12,7 +12,7 @@ El objetivo principal es desacoplar la gramática del lenguaje de la lógica de 
 
 ---
 
-## 2. Estructura del Repositorio
+##  Estructura del Repositorio
 
 El proyecto mantiene una estructura organizada donde únicamente se conservan los archivos fuente, las pruebas y la documentación:
 
@@ -33,7 +33,7 @@ Calculadora_ANTLR4/
 
 ---
 
-## 3. Instrucciones de Compilación y Ejecución
+##  Instrucciones de Compilación y Ejecución
 
 Para compilar y ejecutar el proyecto manualmente en la terminal, sitúate en la raíz del repositorio y ejecuta los siguientes comandos:
 
@@ -73,7 +73,7 @@ java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Calc pruebas/05_comando_
 
 ---
 
-## 4. Diseño de la Gramática (`LabeledExpr.g4`)
+##  Diseño de la Gramática (`LabeledExpr.g4`)
 
 La gramática utiliza etiquetas (iniciadas con `#`) al final de cada alternativa. Estas etiquetas le indican a ANTLR 4 que genere métodos de visita específicos en el Visitor para cada tipo de expresión, en lugar de un único método genérico por regla.
 
@@ -119,49 +119,68 @@ WS      : [ \t]+ -> skip ;
 
 ---
 
-## 5. Casos de Uso y Manejo de Situaciones Especiales
+##  Casos de Uso y Manejo de Situaciones Especiales
 
 ### A. Operaciones Aritméticas Estándar
 La calculadora soporta las operaciones fundamentales de números enteros: suma (`+`), resta (`-`), multiplicación (`*`) y división (`/`).
 
-- **Entrada:** `10 + 5 * 2`
-- **Comportamiento:** Se evalúa primero `5 * 2 = 10` y luego `10 + 10 = 20`.
+**Entrada:**
+
+<img width="219" height="129" alt="image" src="https://github.com/user-attachments/assets/53003df9-09f3-4351-9f7d-cd565d7333fe" />
+
+**Salida:**
+
+<img width="135" height="125" alt="image" src="https://github.com/user-attachments/assets/c9c0d704-22ed-43da-901e-a9fcb707b6f0" />
+
 
 ### B. Precedencia y Uso de Paréntesis
 El agrupamiento mediante paréntesis altera el orden de evaluación natural.
 
-- **Entrada:** `(10 + 5) * 2`
-- **Comportamiento:** La regla `# parens` extrae la expresión interior, evaluando primero `10 + 5 = 15` y luego `15 * 2 = 30`.
+**Entrada:** 
+
+<img width="235" height="121" alt="image" src="https://github.com/user-attachments/assets/13943513-8976-4282-8cdb-34cedc3ce281" />
+
+**Salida:**
+
+<img width="94" height="84" alt="image" src="https://github.com/user-attachments/assets/4124e29f-c399-4dc6-a8c4-0e6f9eb92f78" />
+
 
 ### C. Manejo de Variables y Memoria
 La clase `EvalVisitor` contiene una estructura `Map<String, Integer> memory` que actúa como la memoria de la calculadora:
-- Al encontrar una sentencia de asignación (`a = 15`), se evalúa la parte derecha y se almacena el valor asociado a la clave `"a"`.
-- Al encontrar un identificador en una expresión posterior (`a + 5`), se busca en la memoria y se recupera su valor (`20`).
-- Si una variable es utilizada sin haber sido asignada previamente, el evaluador emite un mensaje de error semántico advirtiendo que no está inicializada y utiliza `0` por defecto.
+
+**Entrada:** 
+
+<img width="255" height="119" alt="image" src="https://github.com/user-attachments/assets/1ed78209-c6e7-4a89-aff6-75e58ce9e0af" />
+
+
+**Salida:**
+
+<img width="228" height="125" alt="image" src="https://github.com/user-attachments/assets/2445231b-6257-4207-9327-04aa907ac214" />
+
 
 ### D. Caso Especial: División por Cero
 En la ejecución estándar de Java, dividir un entero entre cero genera una excepción `ArithmeticException` que interrumpe abruptamente la ejecución del programa.
 
-En nuestra implementación, el método `visitMulDiv` valida explícitamente si el divisor (`right`) es igual a `0`:
+**Entrada:** 
 
-```java
-if (right == 0) {
-    System.err.println("Error semantico: Division por cero en la expresion '" + ctx.getText() + "'.");
-    return null;
-}
-```
+<img width="183" height="105" alt="image" src="https://github.com/user-attachments/assets/2f96f51c-487c-42ab-980f-7d749ad7348b" />
 
-Al detectar el divisor en cero, el programa:
-1. Emite un mensaje de error descriptivo en la salida estándar de errores indicando la expresión exacta donde ocurrió el fallo.
-2. Retorna `null` para propagar de forma segura el estado de error sin romper el procesamiento de las instrucciones siguientes en el archivo de entrada.
+
+**Salida:**
+
+<img width="696" height="89" alt="image" src="https://github.com/user-attachments/assets/46736b67-4004-433c-aeb9-bbdd89ff86d7" />
+
 
 ### E. Comando `clear`
 Permite restablecer la calculadora a su estado inicial borrando todas las variables registradas en la memoria mediante `memory.clear()`.
 
+**Entrada:** 
+
+<img width="172" height="130" alt="image" src="https://github.com/user-attachments/assets/deb0c0e0-87a4-499f-b94c-6f40bc635a86" />
+
+
+**Salida:**
+
+<img width="714" height="127" alt="image" src="https://github.com/user-attachments/assets/0b91b623-958f-4c57-9cce-89c44c34a25e" />
+
 ---
-
-## 6. Conclusiones
-
-1. **Ventajas del Patrón Visitor:** Proporciona un control total sobre el recorrido del árbol sintáctico, permitiendo retornar valores directamente entre llamadas y facilitando la implementación de la lógica matemática y la gestión de memoria en código Java nativo.
-2. **Separación de Responsabilidades:** La gramática únicamente describe la sintaxis formal del lenguaje, mientras que el Visitor concentra la semántica, el cálculo numérico y el control de excepciones.
-3. **Robustez en la Evaluación:** El tratamiento explícito de condiciones de borde, como la división por cero y variables no definidas, garantiza una experiencia de ejecución consistente y confiable.
