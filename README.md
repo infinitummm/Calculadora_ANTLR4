@@ -1,168 +1,306 @@
-# Calculadora con ANTLR 4 utilizando el Patrón Visitor
+# Calculadora Científica y Graficadora con ANTLR 4 y Patrón Visitor
 
 Los integrantes: Dylan Torres - Juan Gomez - Javier Rosero
 
 ---
 
-## 1. Introducción y Fundamentos
+## 1. Introducción y Propósito
 
-Este proyecto consiste en el diseño e implementación de una calculadora aritmética interactiva basada en el Capítulo 4 (*A Quick Tour*) del libro de referencia *The Definitive ANTLR 4 Reference* de Terence Parr.
+Este proyecto implementa una **Calculadora Científica y Graficadora interactiva** basada en el tutorial de laboratorio para la asignatura de Lenguajes de Programación y Traducción.
 
-El objetivo principal es desacoplar la gramática del lenguaje de la lógica de evaluación. En lugar de incrustar acciones en código Java directamente dentro de las reglas gramaticales, ANTLR 4 genera un árbol sintáctico (Parse Tree) y proporciona el patrón de diseño **Visitor**, permitiendo recorrer el árbol y calcular los resultados de forma estructurada, modular y extensible.
+A través del generador de analizadores ANTLR 4 y el patrón de diseño **Visitor** en Java, el sistema evoluciona desde una calculadora aritmética básica hasta un Lenguaje de Dominio Específico (DSL) matemático completo con soporte para:
+- Números reales (enteros y decimales de doble precisión `Double`).
+- Expresiones aritméticas con precedencia jerárquica estricta y asociatividad a derecha para potencias (`^`).
+- Operadores unarios (`+` y `-`).
+- Constantes matemáticas integradas (`pi`, `e`).
+- Funciones científicas de uno y dos argumentos (`sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sqrt`, `log`, `ln`, `abs`, `exp`, `floor`, `ceil`, `pow`, `max`, `min`).
+- Tabla de símbolos dinámica para asignación y persistencia de variables en memoria (`Map<String, Double>`).
+- Comandos de gestión de sesión (`clear` y `vars`).
+- Motor de muestreo y visualización gráfica interactiva con Java Swing (`plot(expr, xmin, xmax)` y `plot(expr, xmin, xmax, ymin, ymax)`).
 
 ---
 
-## 2. Estructura del Repositorio
+## 2. Estructura del Proyecto
 
-El proyecto mantiene una estructura organizada donde únicamente se conservan los archivos fuente, las pruebas y la documentación:
+El repositorio organiza el código fuente, la interfaz gráfica y los conjuntos de pruebas:
 
 ```text
 Calculadora_ANTLR4/
-├── LabeledExpr.g4              # Gramática de la calculadora con etiquetas en cada alternativa
-├── EvalVisitor.java            # Implementación del Visitor en Java (evaluador aritmético y memoria)
-├── Calc.java                   # Punto de entrada de la aplicación
-├── .gitignore                  # Exclusión de archivos compilados y código generado
-├── README.md                   # Documentación técnica del proyecto
-└── pruebas/                    # Casos de prueba organizados por escenario
-    ├── 01_aritmetica_basica.txt
-    ├── 02_precedencia_parentesis.txt
-    ├── 03_variables_asignacion.txt
-    ├── 04_division_por_cero.txt
-    ├── 05_comando_clear.txt
-    └── todas.txt
+├── ScientificCalc.g4           # Gramática de la calculadora científica y graficadora
+├── ScientificEvalVisitor.java  # Implementación del Visitor (evaluador numérico, memoria y muestreo)
+├── PlotWindow.java             # Interfaz gráfica en Java Swing para el trazado de funciones
+├── Main.java                   # Punto de entrada de la aplicación
+├── ejemplos.txt                # Archivo de pruebas oficial del tutorial
+├── pruebas/                    # Suite de pruebas organizada por componentes
+│   ├── 01_aritmetica_reales.txt
+│   ├── 02_variables_memoria.txt
+│   ├── 03_potencia_unarios.txt
+│   ├── 04_funciones_cientificas.txt
+│   ├── 05_comandos_clear_vars.txt
+│   └── 06_retos_extendidos.txt
+├── .gitignore                  # Exclusión de binarios compilados y archivos autogenerados
+└── README.md                   # Documentación técnica, respuestas a preguntas y retos
 ```
 
 ---
 
 ## 3. Instrucciones de Compilación y Ejecución
 
-Para compilar y ejecutar el proyecto manualmente en la terminal, sitúate en la raíz del repositorio y ejecuta los siguientes comandos:
+Sitúate en la raíz del repositorio en la terminal:
 
-### Paso 1: Generar las clases del analizador con soporte para Visitor
 ```bash
-antlr4 -no-listener -visitor LabeledExpr.g4
+cd "/home/Xavi/Escritorio/Trabajos/Materias/Lenguajes de Programacion y Transduccion/Calculadora_ANTLR4"
 ```
-*Nota: La opción `-visitor` genera las interfaces y clases base necesarias para implementar el patrón Visitor, mientras que `-no-listener` omite la generación de listeners innecesarios.*
 
-### Paso 2: Compilar el código fuente en Java
+### Paso 1: Generar el código Java desde la gramática
+```bash
+antlr4 -no-listener -visitor ScientificCalc.g4
+```
+
+### Paso 2: Compilar todos los archivos Java
 ```bash
 javac *.java
 ```
 
-### Paso 3: Ejecutar la suite completa de pruebas
+### Paso 3: Ejecutar el archivo de pruebas principal
 ```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Calc pruebas/todas.txt
+java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main ejemplos.txt
 ```
 
-### Paso 4: Ejecutar pruebas por escenarios individuales
+### Paso 4: Ejecución interactiva desde la consola
 ```bash
-# Operaciones aritméticas básicas
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Calc pruebas/01_aritmetica_basica.txt
+java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main
+```
+*En el modo interactivo puedes ingresar expresiones directamente en la terminal (ej. `radio = 10`, `area = pi * radio^2`, `vars`, `plot(sin(x), -6.28, 6.28)`).*
 
-# Precedencia de operadores y uso de paréntesis
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Calc pruebas/02_precedencia_parentesis.txt
+### Paso 5: Probar las suites de pruebas específicas
+```bash
+# Operaciones con reales y precedencia
+java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/01_aritmetica_reales.txt
 
-# Asignación y reutilización de variables en memoria
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Calc pruebas/03_variables_asignacion.txt
+# Asignación y persistencia de variables
+java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/02_variables_memoria.txt
 
-# Manejo de división por cero y variables no inicializadas
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Calc pruebas/04_division_por_cero.txt
+# Potencias y operadores unarios
+java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/03_potencia_unarios.txt
 
-# Comando clear para reiniciar la memoria
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Calc pruebas/05_comando_clear.txt
+# Funciones científicas y trigonométricas
+java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/04_funciones_cientificas.txt
+
+# Comandos clear y vars
+java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/05_comandos_clear_vars.txt
+
+# Funciones de dos argumentos y retos extendidos
+java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/06_retos_extendidos.txt
 ```
 
 ---
 
-## 4. Diseño de la Gramática (`LabeledExpr.g4`)
+## 4. Respuestas a los Recuadros de Análisis del Tutorial (Azules y Verdes)
 
-La gramática utiliza etiquetas (iniciadas con `#`) al final de cada alternativa. Estas etiquetas le indican a ANTLR 4 que genere métodos de visita específicos en el Visitor para cada tipo de expresión, en lugar de un único método genérico por regla.
+### Detente y analiza (Página 6)
+**Pregunta:** ¿Por qué cree que resulta conveniente tener un método diferente para una suma, una multiplicación y un número?  
+**Respuesta:** Porque cada nodo del árbol sintáctico representa una operación semántica con reglas y comportamientos totalmente distintos. Al separar los métodos (`visitAddSub`, `visitMulDiv`, `visitNumber`), el código en Java resulta modular, limpio y fácil de mantener, evitando estructuras condicionales gigantes (`if/else` o `switch`) dentro de un único método para adivinar qué tipo de nodo se está evaluando.
 
+---
+
+### Ahora hazlo tú (Página 8)
+**Pregunta:** Determine si los siguientes textos pueden ser reconocidos por la regla `ID : [a-zA-Z_][a-zA-Z_0-9]* ;`:
+- `variable`
+- `x2`
+- `2x`
+- `_resultado`
+- `variable-final`
+
+**Análisis:**
+- `variable`: **Válido.** Inicia con una letra y continúa con caracteres alfabéticos.
+- `x2`: **Válido.** Inicia con la letra `x` y le sigue el dígito `2`.
+- `2x`: **No reconocido como un único ID.** La regla exige que el primer carácter sea una letra o guion bajo (`[a-zA-Z_]`). El Lexer lo dividirá en dos tokens independientes: el número `2` (`NUMBER`) y la variable `x` (`ID`).
+- `_resultado`: **Válido.** Inicia con guion bajo, lo cual está explícitamente permitido por el patrón.
+- `variable-final`: **No reconocido como un único ID.** El carácter `-` no pertenece al conjunto `[a-zA-Z_0-9]`. El Lexer lo tokenizará como tres elementos separados: `variable` (`ID`), `-` (`SUB`) y `final` (`ID`).
+
+---
+
+### Detente y analiza (Página 9)
+**Pregunta:** Compare los métodos generados en `ScientificCalcVisitor.java` con las etiquetas utilizadas en la gramática. ¿Qué relación encuentra?  
+**Respuesta:** La relación es directa de uno a uno. Cada etiqueta colocada al final de una alternativa en la gramática (por ejemplo `# power`, `# assign`, `# functionCall`) se convierte exactamente en un método de visita en la interfaz generada por ANTLR (`visitPower`, `visitAssign`, `visitFunctionCall`). Las etiquetas determinan los nombres de las clases de contexto y de los métodos del Visitor.
+
+---
+
+### Detente y analiza (Página 16)
+**Pregunta:** ¿Qué sucedería si escribiera `resultado + 10` sin haber asignado previamente un valor a `resultado`? ¿Considera adecuado devolver cero o sería mejor producir un error?  
+**Respuesta:** Si la variable no existe en `memory`, el método `visitId` no la encontrará. Devolver `0.0` permite que la ejecución continúe sin colapsar el programa, pero oculta un fallo de lógica del usuario. En un lenguaje de producción es mucho más adecuado emitir un **error semántico explícito** (o advertencia en `System.err`) para avisar al usuario que la variable no está inicializada antes de adoptar un valor por defecto.
+
+---
+
+### Ahora hazlo tú (Página 27)
+**Pregunta:** Modifique el código de muestreo para que solamente almacene valores válidos con `if(Double.isFinite(y))`. ¿Qué efecto tiene esta modificación sobre la gráfica de `1/x`?  
+**Respuesta:** En \(x = 0\), la función \(1/x\) produce una asíntota vertical (\(\pm \infty\)). Si se intentaran graficar valores infinitos o `NaN`, el sistema de dibujo generaría excepciones o trazaría líneas verticales artificiales cruzando toda la pantalla. Al filtrar con `Double.isFinite(y)`, los puntos en la discontinuidad se descartan de la lista de coordenadas, permitiendo que la curva se dibuje correctamente en dos ramas asintóticas independientes sin artefactos visuales.
+
+---
+
+### Detente y analiza (Página 33)
+**Pregunta:** Cuando se ejecuta el Visitor `visit(ctx.expr())`, ¿se evalúa una cadena de texto o se visita una estructura de árbol?  
+**Respuesta:** Se visita una **estructura de árbol en memoria (Parse Tree)**. `ctx.expr()` no es un `String`, sino un objeto Java (`ParseTree` / `RuleContext`) con referencias a nodos hijos y terminales. El Visitor recorre estos objetos en memoria ejecutando las llamadas en cascada de abajo hacia arriba.
+
+---
+
+## 5. Respuestas a las Preguntas Finales (Sección 41)
+
+### 1. ¿Cuál es la responsabilidad del Lexer?
+Su responsabilidad es tomar el flujo continuo de caracteres de entrada, aplicar expresiones regulares para agruparlos en unidades léxicas con significado (tokens) y descartar elementos irrelevantes para la sintaxis (como espacios en blanco y tabulaciones).
+
+### 2. ¿Cuál es la responsabilidad del Parser?
+Tomar la secuencia de tokens entregada por el Lexer, validar que cumplan el orden y las reglas estructurales definidas por la gramática libre de contexto, y construir el árbol sintáctico (Parse Tree) en memoria.
+
+### 3. ¿Qué función cumplen las etiquetas como `#addSub` o `#functionCall`?
+Indican a ANTLR que cree subclases de contexto independientes para cada alternativa de una regla sintáctica, generando métodos de visita específicos en el Visitor (`visitAddSub`, `visitFunctionCall`) para manejar cada caso por separado.
+
+### 4. ¿Qué ventaja ofrece el patrón Visitor?
+Permite desacoplar completamente la gramática de la lógica de evaluación. La gramática permanece limpia y reutilizable, mientras que toda la lógica de cálculo, control de memoria y reporte de errores se implementa en Java con control total del flujo de recorrido y retorno de tipos genéricos (`Double`).
+
+### 5. ¿Qué representa la tabla de símbolos?
+Representa la memoria del intérprete (`Map<String, Double> memory`). Es una estructura de datos que almacena el mapeo entre los identificadores (nombres de variables) y sus valores calculados asociados durante la sesión.
+
+### 6. ¿Por qué la variable `x` cambia continuamente durante una gráfica?
+Porque para representar una curva continua \(y = f(x)\), el comando `plot` divide el intervalo horizontal \([x_{min}, x_{max}]\) en 800 muestras discretas. En cada iteración se asigna un nuevo valor a la variable `"x"` en la tabla de símbolos para evaluar el punto correspondiente.
+
+### 7. ¿Por qué podemos evaluar el mismo árbol sintáctico varias veces?
+Porque el árbol sintáctico construido por ANTLR es una estructura inmutable en memoria. Al invocar `visit(tree)` múltiples veces con diferentes valores en la tabla de símbolos (como el valor de `x`), el Visitor recalcula la expresión sin necesidad de volver a procesar el texto ni reconstruir el árbol.
+
+### 8. ¿Qué sucede cuando se intenta graficar una función con una discontinuidad?
+En puntos de discontinuidad o asíntotas (como \(1/x\) en \(0\) o \(\tan(x)\) en \(\pi/2\)), la evaluación produce valores infinitos (`Double.isInfinite`) o indeterminaciones (`Double.isNaN`). Al validar con `Double.isFinite(y)` y controlar los saltos de signo abruptos, el sistema descarta los puntos inválidos y evita dibujar líneas continuas que crucen incorrectamente la pantalla.
+
+### 9. ¿Qué modificaciones serían necesarias para implementar funciones con dos argumentos?
+Se debe extender la gramática añadiendo una regla para funciones binarias (ej. `function2 '(' expr ',' expr ')' # functionCall2`) y sobreescribir en el Visitor el método `visitFunctionCall2`, evaluando `visit(ctx.expr(0))` para el primer argumento y `visit(ctx.expr(1))` para el segundo (ej. `Math.pow(a, b)`, `Math.max(a, b)`).
+
+### 10. ¿Por qué la calculadora desarrollada puede considerarse un lenguaje de dominio específico (DSL)?
+Porque posee una sintaxis diseñada exclusivamente para resolver problemas dentro de un dominio concreto (el cálculo y análisis matemático-científico interactivo), ofreciendo primitivas directas de evaluación, persistencia de variables y graficación sin la sobrecarga de un lenguaje de propósito general.
+
+---
+
+## 6. Solución a los 5 Retos (Sección 42)
+
+### Reto 1 – Nuevas funciones científicas
+Se incorporaron las funciones trigonométricas inversas y de redondeo a la regla `function`:
 ```antlr
-grammar LabeledExpr;
-
-// Reglas sintácticas
-prog
-    : stat+
+function
+    : 'sin' | 'cos' | 'tan' | 'asin' | 'acos' | 'atan'
+    | 'sqrt' | 'log' | 'ln' | 'abs' | 'exp' | 'floor' | 'ceil'
     ;
-
-stat
-    : expr NEWLINE                # printExpr
-    | ID '=' expr NEWLINE         # assign
-    | 'clear' NEWLINE             # clear
-    | NEWLINE                     # blank
-    ;
-
-expr
-    : expr op=('*'|'/') expr      # MulDiv
-    | expr op=('+'|'-') expr      # AddSub
-    | INT                         # int
-    | ID                          # id
-    | '(' expr ')'                # parens
-    ;
-
-// Reglas léxicas
-MUL : '*' ;
-DIV : '/' ;
-ADD : '+' ;
-SUB : '-' ;
-
-ID      : [a-zA-Z]+ ;
-INT     : [0-9]+ ;
-NEWLINE : '\r'? '\n' ;
-WS      : [ \t]+ -> skip ;
 ```
-
-**Aspectos clave de la gramática:**
-- **Precedencia de operadores:** En ANTLR 4, las alternativas listadas primero tienen mayor precedencia. Al ubicar la regla `MulDiv` antes que `AddSub`, la multiplicación y división se evalúan automáticamente antes que la suma y la resta sin requerir reglas intermedias complejas.
-- **Asociatividad:** Las operaciones son asociativas por la izquierda de forma predeterminada.
-- **Etiquetas personalizadas:** Etiquetas como `# printExpr`, `# assign`, `# MulDiv`, `# AddSub` y `# parens` generan métodos independientes como `visitMulDiv()` o `visitAssign()`.
+En `ScientificEvalVisitor.java`:
+```java
+case "asin":  return Math.asin(value);
+case "acos":  return Math.acos(value);
+case "atan":  return Math.atan(value);
+case "floor": return Math.floor(value);
+case "ceil":  return Math.ceil(value);
+```
 
 ---
 
-## 5. Casos de Uso y Manejo de Situaciones Especiales
+### Reto 2 – Funciones con dos argumentos
+Se diseñó la regla sintáctica:
+```antlr
+expr
+    : ...
+    | function2 '(' expr ',' expr ')' # functionCall2
+    ;
 
-### A. Operaciones Aritméticas Estándar
-La calculadora soporta las operaciones fundamentales de números enteros: suma (`+`), resta (`-`), multiplicación (`*`) y división (`/`).
-
-- **Entrada:** `10 + 5 * 2`
-- **Comportamiento:** Se evalúa primero `5 * 2 = 10` y luego `10 + 10 = 20`.
-
-### B. Precedencia y Uso de Paréntesis
-El agrupamiento mediante paréntesis altera el orden de evaluación natural.
-
-- **Entrada:** `(10 + 5) * 2`
-- **Comportamiento:** La regla `# parens` extrae la expresión interior, evaluando primero `10 + 5 = 15` y luego `15 * 2 = 30`.
-
-### C. Manejo de Variables y Memoria
-La clase `EvalVisitor` contiene una estructura `Map<String, Integer> memory` que actúa como la memoria de la calculadora:
-- Al encontrar una sentencia de asignación (`a = 15`), se evalúa la parte derecha y se almacena el valor asociado a la clave `"a"`.
-- Al encontrar un identificador en una expresión posterior (`a + 5`), se busca en la memoria y se recupera su valor (`20`).
-- Si una variable es utilizada sin haber sido asignada previamente, el evaluador emite un mensaje de error semántico advirtiendo que no está inicializada y utiliza `0` por defecto.
-
-### D. Caso Especial: División por Cero
-En la ejecución estándar de Java, dividir un entero entre cero genera una excepción `ArithmeticException` que interrumpe abruptamente la ejecución del programa.
-
-En nuestra implementación, el método `visitMulDiv` valida explícitamente si el divisor (`right`) es igual a `0`:
-
+function2
+    : 'pow' | 'max' | 'min'
+    ;
+```
+En `ScientificEvalVisitor.java`:
 ```java
-if (right == 0) {
-    System.err.println("Error semantico: Division por cero en la expresion '" + ctx.getText() + "'.");
-    return null;
+@Override
+public Double visitFunctionCall2(ScientificCalcParser.FunctionCall2Context ctx) {
+    String func = ctx.function2().getText();
+    Double arg1 = visit(ctx.expr(0));
+    Double arg2 = visit(ctx.expr(1));
+    if (arg1 == null || arg2 == null) return null;
+
+    switch (func) {
+        case "pow": return Math.pow(arg1, arg2);
+        case "max": return Math.max(arg1, arg2);
+        case "min": return Math.min(arg1, arg2);
+        default: return null;
+    }
 }
 ```
 
-Al detectar el divisor en cero, el programa:
-1. Emite un mensaje de error descriptivo en la salida estándar de errores indicando la expresión exacta donde ocurrió el fallo.
-2. Retorna `null` para propagar de forma segura el estado de error sin romper el procesamiento de las instrucciones siguientes en el archivo de entrada.
+---
 
-### E. Comando `clear`
-Permite restablecer la calculadora a su estado inicial borrando todas las variables registradas en la memoria mediante `memory.clear()`.
+### Reto 3 – Rango vertical en el comando `plot`
+Se extendió la regla `stat` para permitir especificar límites verticales opcionales:
+```antlr
+stat
+    : ...
+    | 'plot' '(' expr ',' expr ',' expr ',' expr ',' expr ')' NEWLINE # plotRangeExpr
+    ;
+```
+Esto permite ejecutar comandos como `plot(sin(x), -3.14, 3.14, -2.0, 2.0)`, fijando los límites del eje vertical directamente en `PlotWindow`.
 
 ---
 
-## 6. Conclusiones
+### Reto 4 – Graficar varias funciones simultáneamente
+**Diseño sintáctico:**
+Para permitir graficar múltiples funciones en una sola ventana (ej. `plot(sin(x), cos(x), -6.28, 6.28)`), se diseña la regla:
+```antlr
+plotMulti
+    : 'plot' '(' exprList ',' expr ',' expr ')' NEWLINE # plotMultiExpr
+    ;
 
-1. **Ventajas del Patrón Visitor:** Proporciona un control total sobre el recorrido del árbol sintáctico, permitiendo retornar valores directamente entre llamadas y facilitando la implementación de la lógica matemática y la gestión de memoria en código Java nativo.
-2. **Separación de Responsabilidades:** La gramática únicamente describe la sintaxis formal del lenguaje, mientras que el Visitor concentra la semántica, el cálculo numérico y el control de excepciones.
-3. **Robustez en la Evaluación:** El tratamiento explícito de condiciones de borde, como la división por cero y variables no definidas, garantiza una experiencia de ejecución consistente y confiable.
+exprList
+    : expr (',' expr)*
+    ;
+```
+En el Visitor se itera sobre la lista de expresiones `ctx.exprList().expr()`, generando una serie de datos `List<List<Double>> ySeries` y asignando un color diferente a cada curva en el panel gráfico.
+
+---
+
+### Reto 5 – Definición de funciones de usuario
+**Diseño sintáctico y arquitectónico:**
+Para permitir que el usuario defina funciones personalizadas como `f(x) = x^2 + 2*x + 1` y las evalúe con `f(5)` o `plot(f(x), -10, 10)`:
+1. **Gramática:**
+```antlr
+stat
+    : ID '(' ID ')' '=' expr NEWLINE # funcDef
+    ;
+
+expr
+    : ID '(' expr ')' # userFuncCall
+    ;
+```
+2. **Semántica en el Visitor:**  
+Se almacena una tabla de funciones `Map<String, FunctionDefinition>`, donde cada definición guarda el nombre del parámetro formal (ej. `"x"`) y el subárbol sintáctico de la expresión (`ParseTree body`). Al invocar `f(5)`, se guarda temporalmente el argumento actual en `"x"`, se evalúa el subárbol `body` mediante `visit(body)` y se restaura el entorno previo.
+
+---
+
+## 7. Verificación de Pruebas Manuales (Recuadros Rojos)
+
+| Expresión / Comando | Resultado Obtenido | Estado |
+| :--- | :--- | :--- |
+| `2 + 2` | `4` | Correcto |
+| `10 - 3` | `7` | Correcto |
+| `10 * 5` | `50` | Correcto |
+| `20 / 4` | `5` | Correcto |
+| `2 + 3 * 4` | `14` (Respeta precedencia) | Correcto |
+| `(2 + 3) * 4` | `20` (Respeta paréntesis) | Correcto |
+| `a = 10; b = 20; a + b` | `a = 10`, `b = 20`, `30` | Correcto |
+| `2^8` | `256` | Correcto |
+| `2^3^2` | `512` (Asociatividad a derecha: \(2^9\)) | Correcto |
+| `sin(pi/2)` | `1` | Correcto |
+| `cos(0)` | `1` | Correcto |
+| `log(100)` | `2` | Correcto |
+| `ln(e)` | `1` | Correcto |
+| `sqrt(25)` | `5` | Correcto |
+| `abs(-10)` | `10` | Correcto |
+| `vars` | Lista variables `a`, `b`, `radio` | Correcto |
+| `clear` | Vacia memoria de variables | Correcto |
+| `plot(sin(x), -6.28, 6.28)` | Abre ventana interactiva con onda senoidal | Correcto |
+| `plot(x^2, -10, 10)` | Abre ventana interactiva con parábola centrada | Correcto |
+| `pow(2, 8)` | `256` | Correcto |
+| `max(10, 25)` | `25` | Correcto |
+| `min(10, 25)` | `10` | Correcto |

@@ -1,0 +1,7 @@
+radio = 10
+area = pi * radio^2
+area
+angulo = pi / 4
+sin(angulo)
+cos(angulo)
+vars
