@@ -6,7 +6,7 @@ Los integrantes: Dylan Torres - Juan Gomez - Javier Rosero
 
 ## 1. Introducción y Propósito
 
-Este trabajo implementa una **Calculadora Científica y Graficadora interactiva** basada en el tutorial de laboratorio para la asignatura de Lenguajes de Programación y Traducción.
+Este proyecto implementa una **Calculadora Científica y Graficadora interactiva** basada en el tutorial de laboratorio para la asignatura de Lenguajes de Programación y Traducción.
 
 A través del generador de analizadores ANTLR 4 y el patrón de diseño **Visitor** en Java, el sistema evoluciona desde una calculadora aritmética básica hasta un Lenguaje de Dominio Específico (DSL) matemático completo con soporte para:
 - Números reales (enteros y decimales de doble precisión `Double`).
@@ -20,9 +20,9 @@ A través del generador de analizadores ANTLR 4 y el patrón de diseño **Visito
 
 ---
 
-## 2. Estructura del trabajo
+## 2. Estructura del Proyecto
 
-El repositorio organiza el código fuente, la interfaz gráfica y los conjuntos de pruebas:
+El repositorio organiza el código fuente, la automatización con Makefile y los conjuntos de pruebas:
 
 ```text
 Calculadora_ANTLR4/
@@ -30,6 +30,7 @@ Calculadora_ANTLR4/
 ├── ScientificEvalVisitor.java  # Implementación del Visitor (evaluador numérico, memoria y muestreo)
 ├── PlotWindow.java             # Interfaz gráfica en Java Swing para el trazado de funciones
 ├── Main.java                   # Punto de entrada de la aplicación
+├── Makefile                    # Automatización de generación, compilación, pruebas y limpieza
 ├── ejemplos.txt                # Archivo de pruebas oficial del tutorial
 ├── Tutorial_ANTLR.pdf          # Guía del laboratorio
 ├── .gitignore                  # Exclusión de binarios compilados y archivos autogenerados
@@ -45,7 +46,9 @@ Calculadora_ANTLR4/
 
 ---
 
-## 3. Instrucciones de Compilación y Ejecución
+## 3. Compilación y Ejecución con Makefile
+
+Todo el ciclo de vida del proyecto (generación de código ANTLR 4, compilación de clases Java, ejecución interactiva, pruebas y limpieza) se encuentra completamente automatizado mediante el archivo `Makefile`.
 
 Sitúate en la raíz del repositorio en la terminal:
 
@@ -53,29 +56,37 @@ Sitúate en la raíz del repositorio en la terminal:
 cd "/home/Xavi/Escritorio/Trabajos/Materias/Lenguajes de Programacion y Transduccion/Calculadora_ANTLR4"
 ```
 
-### Paso 1: Generar el código Java desde la gramática y compilar
+### Comandos disponibles en el Makefile
+
+| Comando | Descripción de la acción |
+| :--- | :--- |
+| `make` o `make compile` | Genera las clases del Lexer, Parser y Visitor con `antlr4` y compila todos los `.java`. |
+| `make test` | Compila y ejecuta el archivo de prueba oficial `ejemplos.txt`. |
+| `make run` | Inicia la calculadora en **modo interactivo (REPL)** por terminal. |
+| `make test-all` | Ejecuta de forma secuencial todas las suites de prueba en `pruebas/`. |
+| `make clean` | Elimina todos los archivos binarios (`.class`) y clases autogeneradas por ANTLR. |
+| `make help` | Muestra el menú de ayuda con los comandos disponibles. |
+
+---
+
+### Evidencias de Ejecución
+
+#### 1. Compilación del proyecto (`make compile`)
 ```bash
-# 1. Generar clases del Lexer, Parser y Visitor desde la gramática
-antlr4 -no-listener -visitor ScientificCalc.g4
-
-# 2. Compilar todas las clases con el compilador de Java
-javac *.java
+make compile
 ```
-
 ![Compilación de ANTLR y Java](docs/capturas/01_compilacion.png)
 
-### Paso 2: Ejecutar el archivo de pruebas principal del tutorial
+#### 2. Ejecución del archivo de pruebas oficial (`make test`)
 ```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main ejemplos.txt
+make test
 ```
-
 ![Ejecución de ejemplos.txt](docs/capturas/02_ejemplos_oficiales.png)
 
-### Paso 3: Ejecución interactiva desde la consola (Modo REPL)
+#### 3. Modo interactivo en vivo (`make run`)
 ```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main
+make run
 ```
-
 ![Sesión Interactiva en Consola](docs/capturas/09_sesion_interactiva.png)
 <img width="834" height="622" alt="image" src="https://github.com/user-attachments/assets/879b3bab-a9c8-4bcd-a375-909952e2d7b5" />
 
@@ -265,48 +276,32 @@ Se almacena una tabla de funciones `Map<String, FunctionDefinition>`, donde cada
 
 ## 7. Verificación de Pruebas Manuales (Recuadros Rojos)
 
+Las pruebas individuales pueden ejecutarse mediante `make test-all` o pasando el archivo específico al ejecutable de Java.
+
 ### Prueba 01: Operaciones Aritméticas y Números Reales
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/01_aritmetica_reales.txt
-```
 ![Prueba Aritmética y Reales](docs/capturas/03_aritmetica_reales.png)
 
 ---
 
 ### Prueba 02: Asignación y Persistencia de Variables
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/02_variables_memoria.txt
-```
 ![Prueba Variables y Memoria](docs/capturas/04_variables_memoria.png)
 
 ---
 
 ### Prueba 03: Potencias (Asociatividad a Derecha) y Operadores Unarios
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/03_potencia_unarios.txt
-```
 ![Prueba Potencias y Unarios](docs/capturas/05_potencia_unarios.png)
 
 ---
 
 ### Prueba 04: Funciones Científicas, Trigonométricas y Logarítmicas
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/04_funciones_cientificas.txt
-```
 ![Prueba Funciones Científicas](docs/capturas/06_funciones_cientificas.png)
 
 ---
 
 ### Prueba 05: Gestión de Sesión con Comandos `vars` y `clear`
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/05_comandos_clear_vars.txt
-```
 ![Prueba Comandos clear y vars](docs/capturas/07_comandos_clear_vars.png)
 
 ---
 
 ### Prueba 06: Funciones de Dos Argumentos y Retos de Extensión
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/06_retos_extendidos.txt
-```
 ![Prueba Retos Extendidos](docs/capturas/08_retos_extendidos.png)
