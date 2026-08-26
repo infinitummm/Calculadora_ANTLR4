@@ -77,6 +77,7 @@ java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main
 ```
 
 ![Sesión Interactiva en Consola](docs/capturas/09_sesion_interactiva.png)
+<img width="834" height="622" alt="image" src="https://github.com/user-attachments/assets/879b3bab-a9c8-4bcd-a375-909952e2d7b5" />
 
 ---
 
