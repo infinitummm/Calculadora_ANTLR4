@@ -22,7 +22,7 @@ A través del generador de analizadores ANTLR 4 y el patrón de diseño **Visito
 
 ## 2. Estructura del Proyecto
 
-El repositorio organiza el código fuente, la interfaz gráfica, la suite de pruebas y las capturas de terminal:
+El repositorio organiza el código fuente, la interfaz gráfica y los conjuntos de pruebas:
 
 ```text
 Calculadora_ANTLR4/
@@ -33,18 +33,7 @@ Calculadora_ANTLR4/
 ├── ejemplos.txt                # Archivo de pruebas oficial del tutorial
 ├── Tutorial_ANTLR.pdf          # Guía del laboratorio
 ├── .gitignore                  # Exclusión de binarios compilados y archivos autogenerados
-├── README.md                   # Documentación técnica, respuestas a preguntas, retos y capturas
-├── docs/                       # Recursos visuales y documentación
-│   └── capturas/               # Capturas de la terminal ejecutando cada escenario
-│       ├── 01_compilacion.png
-│       ├── 02_ejemplos_oficiales.png
-│       ├── 03_aritmetica_reales.png
-│       ├── 04_variables_memoria.png
-│       ├── 05_potencia_unarios.png
-│       ├── 06_funciones_cientificas.png
-│       ├── 07_comandos_clear_vars.png
-│       ├── 08_retos_extendidos.png
-│       └── 09_sesion_interactiva.png
+├── README.md                   # Documentación técnica, respuestas a preguntas y retos
 └── pruebas/                    # Suite de pruebas organizada por componentes
     ├── 01_aritmetica_reales.txt
     ├── 02_variables_memoria.txt
@@ -64,30 +53,25 @@ Sitúate en la raíz del repositorio en la terminal:
 cd "/home/Xavi/Escritorio/Trabajos/Materias/Lenguajes de Programacion y Transduccion/Calculadora_ANTLR4"
 ```
 
-### Paso 1: Generar el código Java y compilar
+### Paso 1: Generar el código Java desde la gramática
 ```bash
-# 1. Generar clases del Lexer, Parser y Visitor desde la gramática
 antlr4 -no-listener -visitor ScientificCalc.g4
+```
 
-# 2. Compilar todas las clases con el compilador de Java
+### Paso 2: Compilar todos los archivos Java
+```bash
 javac *.java
 ```
 
-![Compilación de ANTLR y Java](docs/capturas/01_compilacion.png)
-
-### Paso 2: Ejecutar el archivo de pruebas principal del tutorial
+### Paso 3: Ejecutar el archivo de pruebas principal del tutorial
 ```bash
 java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main ejemplos.txt
 ```
 
-![Ejecución de ejemplos.txt](docs/capturas/02_ejemplos_oficiales.png)
-
-### Paso 3: Ejecución interactiva desde la consola (Modo REPL)
+### Paso 4: Ejecución interactiva desde la consola (Modo REPL)
 ```bash
 java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main
 ```
-
-![Sesión Interactiva en Consola](docs/capturas/09_sesion_interactiva.png)
 
 ---
 
@@ -275,48 +259,27 @@ Se almacena una tabla de funciones `Map<String, FunctionDefinition>`, donde cada
 
 ## 7. Verificación de Pruebas Manuales (Recuadros Rojos)
 
-### Prueba 01: Operaciones Aritméticas y Números Reales
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/01_aritmetica_reales.txt
-```
-![Prueba Aritmética y Reales](docs/capturas/03_aritmetica_reales.png)
-
----
-
-### Prueba 02: Asignación y Persistencia de Variables
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/02_variables_memoria.txt
-```
-![Prueba Variables y Memoria](docs/capturas/04_variables_memoria.png)
-
----
-
-### Prueba 03: Potencias (Asociatividad a Derecha) y Operadores Unarios
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/03_potencia_unarios.txt
-```
-![Prueba Potencias y Unarios](docs/capturas/05_potencia_unarios.png)
-
----
-
-### Prueba 04: Funciones Científicas, Trigonométricas y Logarítmicas
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/04_funciones_cientificas.txt
-```
-![Prueba Funciones Científicas](docs/capturas/06_funciones_cientificas.png)
-
----
-
-### Prueba 05: Gestión de Sesión con Comandos `vars` y `clear`
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/05_comandos_clear_vars.txt
-```
-![Prueba Comandos clear y vars](docs/capturas/07_comandos_clear_vars.png)
-
----
-
-### Prueba 06: Funciones de Dos Argumentos y Retos de Extensión
-```bash
-java -cp "$HOME/.local/lib/antlr-4.13.2-complete.jar:." Main pruebas/06_retos_extendidos.txt
-```
-![Prueba Retos Extendidos](docs/capturas/08_retos_extendidos.png)
+| Expresión / Comando | Resultado Obtenido | Estado |
+| :--- | :--- | :--- |
+| `2 + 2` | `4` | Correcto |
+| `10 - 3` | `7` | Correcto |
+| `10 * 5` | `50` | Correcto |
+| `20 / 4` | `5` | Correcto |
+| `2 + 3 * 4` | `14` (Respeta precedencia) | Correcto |
+| `(2 + 3) * 4` | `20` (Respeta paréntesis) | Correcto |
+| `a = 10; b = 20; a + b` | `a = 10`, `b = 20`, `30` | Correcto |
+| `2^8` | `256` | Correcto |
+| `2^3^2` | `512` (Asociatividad a derecha: \(2^9\)) | Correcto |
+| `sin(pi/2)` | `1` | Correcto |
+| `cos(0)` | `1` | Correcto |
+| `log(100)` | `2` | Correcto |
+| `ln(e)` | `1` | Correcto |
+| `sqrt(25)` | `5` | Correcto |
+| `abs(-10)` | `10` | Correcto |
+| `vars` | Lista variables `a`, `b`, `radio` | Correcto |
+| `clear` | Vacia memoria de variables | Correcto |
+| `plot(sin(x), -6.28, 6.28)` | Abre ventana interactiva con onda senoidal | Correcto |
+| `plot(x^2, -10, 10)` | Abre ventana interactiva con parábola centrada | Correcto |
+| `pow(2, 8)` | `256` | Correcto |
+| `max(10, 25)` | `25` | Correcto |
+| `min(10, 25)` | `10` | Correcto |
