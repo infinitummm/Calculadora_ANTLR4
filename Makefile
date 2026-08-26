@@ -1,3 +1,4 @@
+#!/usr/bin/make -f
 # Makefile para Calculadora Científica y Graficadora ANTLR 4
 
 ANTLR_JAR ?= $(HOME)/.local/lib/antlr-4.13.2-complete.jar
