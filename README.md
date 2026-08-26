@@ -6,7 +6,7 @@ Los integrantes: Dylan Torres - Juan Gomez - Javier Rosero
 
 ## 1. Introducción y Propósito
 
-Este proyecto implementa una **Calculadora Científica y Graficadora interactiva** basada en el tutorial de laboratorio para la asignatura de Lenguajes de Programación y Traducción.
+Este trabajo implementa una **Calculadora Científica y Graficadora interactiva** basada en el tutorial de laboratorio para la asignatura de Lenguajes de Programación y Traducción.
 
 A través del generador de analizadores ANTLR 4 y el patrón de diseño **Visitor** en Java, el sistema evoluciona desde una calculadora aritmética básica hasta un Lenguaje de Dominio Específico (DSL) matemático completo con soporte para:
 - Números reales (enteros y decimales de doble precisión `Double`).
@@ -20,7 +20,7 @@ A través del generador de analizadores ANTLR 4 y el patrón de diseño **Visito
 
 ---
 
-## 2. Estructura del Proyecto
+## 2. Estructura del trabajo
 
 El repositorio organiza el código fuente, la interfaz gráfica y los conjuntos de pruebas:
 
