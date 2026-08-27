@@ -4,7 +4,7 @@ Los integrantes: Dylan Torres - Juan Gomez - Javier Rosero
 
 ---
 
-## 1. Introducción y Propósito
+## 1. Introducción
 
 Este trabajo implementa una **Calculadora Científica y Graficadora interactiva** basada en el tutorial de laboratorio.
 
